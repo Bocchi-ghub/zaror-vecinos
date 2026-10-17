@@ -10,6 +10,9 @@ import com.example.zarorvecinos.ui.theme.screens.ArriendosScreen
 import com.example.zarorvecinos.ui.theme.screens.FinanzasScreen
 import com.example.zarorvecinos.ui.theme.screens.InicioScreen
 
+import com.example.zarorvecinos.ui.theme.model.ArriendoUi
+import com.example.zarorvecinos.ui.theme.model.EstadoArriendoUi
+
 private object Rutas {
     const val INICIO = "inicio"
     const val ARRIENDOS = "arriendos"
@@ -46,7 +49,37 @@ fun ZarorNavHost(
             ArriendosScreen(
                 onVolver = {
                     navController.popBackStack()
-                }
+                },
+                arriendos = listOf(
+                    ArriendoUi(
+                        id = 1,
+                        motivo = "Reunión comunitaria",
+                        solicitante = "Vecino Demo 1",
+                        fecha = "24/10/2026",
+                        horaInicio = "16:00",
+                        horaTermino = "18:00",
+                        estado = EstadoArriendoUi.CONFIRMADO
+                    ),
+                    ArriendoUi(
+                        id = 2,
+                        motivo = "Taller vecinal",
+                        solicitante = "Vecino Demo 2",
+                        fecha = "25/10/2026",
+                        horaInicio = "10:00",
+                        horaTermino = "12:00",
+                        estado = EstadoArriendoUi.PENDIENTE
+                    ),
+                    ArriendoUi(
+                        id = 3,
+                        motivo = "Actividad recreativa",
+                        solicitante = "Vecino Demo 3",
+                        fecha = "26/10/2026",
+                        horaInicio = "15:00",
+                        horaTermino = "17:00",
+                        estado = EstadoArriendoUi.CANCELADO
+                    )
+                ),
+                mostrarAvisoDemo = true
             )
         }
 
