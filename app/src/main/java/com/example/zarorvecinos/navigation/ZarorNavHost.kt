@@ -12,13 +12,14 @@ import com.example.zarorvecinos.ui.theme.screens.InicioScreen
 
 import com.example.zarorvecinos.ui.theme.model.ArriendoUi
 import com.example.zarorvecinos.ui.theme.model.EstadoArriendoUi
+import com.example.zarorvecinos.ui.theme.screens.NuevaReservaScreen
 
 private object Rutas {
     const val INICIO = "inicio"
     const val ARRIENDOS = "arriendos"
     const val FINANZAS = "finanzas"
+    const val NUEVA_RESERVA = "nueva_reserva"
 }
-
 @Composable
 fun ZarorNavHost(
     modifier: Modifier = Modifier
@@ -49,6 +50,11 @@ fun ZarorNavHost(
             ArriendosScreen(
                 onVolver = {
                     navController.popBackStack()
+                },
+                onNuevaReserva = {
+                    navController.navigate(Rutas.NUEVA_RESERVA) {
+                        launchSingleTop = true
+                    }
                 },
                 arriendos = listOf(
                     ArriendoUi(
@@ -83,12 +89,13 @@ fun ZarorNavHost(
             )
         }
 
-        composable(route = Rutas.FINANZAS) {
-            FinanzasScreen(
+        composable(route = Rutas.NUEVA_RESERVA) {
+            NuevaReservaScreen(
                 onVolver = {
                     navController.popBackStack()
                 }
             )
         }
+
+        }
     }
-}
