@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import com.example.zarorvecinos.ui.theme.ZarorVecinosTheme
 import com.example.zarorvecinos.viewmodel.CampoReserva
 import com.example.zarorvecinos.viewmodel.NuevaReservaUiState
+import com.example.zarorvecinos.ui.theme.components.SelectorFechaReserva
+import com.example.zarorvecinos.ui.theme.components.SelectorHoraReserva
 
 @Composable
 fun NuevaReservaScreen(
@@ -77,34 +79,39 @@ fun NuevaReservaScreen(
             multilinea = true
         )
 
-        CampoReservaFormulario(
+        SelectorFechaReserva(
             valor = uiState.fecha,
-            onValorChange = {
-                onCampoChange(CampoReserva.FECHA, it)
-            },
-            etiqueta = "Fecha",
-            ayuda = "Formato DD/MM/AAAA. Ejemplo: 25/10/2026",
-            error = uiState.errores.fecha
+            error = uiState.errores.fecha,
+            onFechaSeleccionada = { fechaSeleccionada ->
+                onCampoChange(
+                    CampoReserva.FECHA,
+                    fechaSeleccionada
+                )
+            }
         )
 
-        CampoReservaFormulario(
-            valor = uiState.horaInicio,
-            onValorChange = {
-                onCampoChange(CampoReserva.HORA_INICIO, it)
-            },
+        SelectorHoraReserva(
             etiqueta = "Hora de inicio",
-            ayuda = "Formato de 24 horas. Ejemplo: 16:00",
-            error = uiState.errores.horaInicio
+            valor = uiState.horaInicio,
+            error = uiState.errores.horaInicio,
+            onHoraSeleccionada = { horaSeleccionada ->
+                onCampoChange(
+                    CampoReserva.HORA_INICIO,
+                    horaSeleccionada
+                )
+            }
         )
 
-        CampoReservaFormulario(
-            valor = uiState.horaTermino,
-            onValorChange = {
-                onCampoChange(CampoReserva.HORA_TERMINO, it)
-            },
+        SelectorHoraReserva(
             etiqueta = "Hora de término",
-            ayuda = "Debe ser posterior al inicio. Ejemplo: 18:00",
-            error = uiState.errores.horaTermino
+            valor = uiState.horaTermino,
+            error = uiState.errores.horaTermino,
+            onHoraSeleccionada = { horaSeleccionada ->
+                onCampoChange(
+                    CampoReserva.HORA_TERMINO,
+                    horaSeleccionada
+                )
+            }
         )
 
         if (uiState.intentoRevisar && !uiState.errores.esValido) {
