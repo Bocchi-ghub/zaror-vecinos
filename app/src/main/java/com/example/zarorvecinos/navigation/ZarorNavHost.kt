@@ -89,6 +89,13 @@ fun ZarorNavHost(
             )
         }
 
+        composable(route = Rutas.FINANZAS) {
+            FinanzasScreen(
+                onVolver = {
+                    navController.popBackStack()
+                }
+            )
+        }
         composable(route = Rutas.NUEVA_RESERVA) {
             NuevaReservaScreen(
                 onVolver = {

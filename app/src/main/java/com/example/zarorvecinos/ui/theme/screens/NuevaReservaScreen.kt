@@ -1,7 +1,5 @@
 package com.example.zarorvecinos.ui.theme.screens
 
-
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,7 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.zarorvecinos.ui.theme.ZarorVecinosTheme
-
+import com.example.zarorvecinos.validation.ErroresReserva
+import com.example.zarorvecinos.validation.ReservaValidator
 
 @Composable
 fun NuevaReservaScreen(
@@ -38,8 +37,24 @@ fun NuevaReservaScreen(
     var horaInicio by rememberSaveable { mutableStateOf("") }
     var horaTermino by rememberSaveable { mutableStateOf("") }
 
+    var intentoRevisar by rememberSaveable {
+        mutableStateOf(false)
+    }
+
     var mostrarResumen by rememberSaveable {
         mutableStateOf(false)
+    }
+
+    val errores = if (intentoRevisar) {
+        ReservaValidator.validar(
+            solicitante = solicitante,
+            motivo = motivo,
+            fecha = fecha,
+            horaInicio = horaInicio,
+            horaTermino = horaTermino
+        )
+    } else {
+        ErroresReserva()
     }
 
     Column(
@@ -62,74 +77,74 @@ fun NuevaReservaScreen(
         )
 
         Text(
-            text = "Usa únicamente información ficticia.",
+            text = "Todos los campos son obligatorios. " +
+                    "Usa únicamente información ficticia.",
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        OutlinedTextField(
-            value = solicitante,
-            onValueChange = { solicitante = it },
-            label = { Text("Nombre del solicitante") },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth()
+        CampoReserva(
+            valor = solicitante,
+            onValorChange = { solicitante = it },
+            etiqueta = "Nombre del solicitante",
+            error = errores.solicitante
         )
 
-        OutlinedTextField(
-            value = motivo,
-            onValueChange = { motivo = it },
-            label = { Text("Motivo del arriendo") },
-            placeholder = { Text("Ej.: Taller comunitario") },
-            minLines = 2,
-            maxLines = 4,
-            modifier = Modifier.fillMaxWidth()
+        CampoReserva(
+            valor = motivo,
+            onValorChange = { motivo = it },
+            etiqueta = "Motivo del arriendo",
+            ayuda = "Ejemplo: Taller comunitario",
+            error = errores.motivo,
+            multilinea = true
         )
 
-        OutlinedTextField(
-            value = fecha,
-            onValueChange = { fecha = it },
-            label = { Text("Fecha") },
-            placeholder = { Text("DD/MM/AAAA") },
-            supportingText = {
-                Text("Ejemplo: 25/10/2026")
-            },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth()
+        CampoReserva(
+            valor = fecha,
+            onValorChange = { fecha = it },
+            etiqueta = "Fecha",
+            ayuda = "Formato DD/MM/AAAA. Ejemplo: 25/10/2026",
+            error = errores.fecha
         )
 
-        OutlinedTextField(
-            value = horaInicio,
-            onValueChange = { horaInicio = it },
-            label = { Text("Hora de inicio") },
-            placeholder = { Text("HH:mm") },
-            supportingText = {
-                Text("Formato de 24 horas. Ejemplo: 16:00")
-            },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth()
+        CampoReserva(
+            valor = horaInicio,
+            onValorChange = { horaInicio = it },
+            etiqueta = "Hora de inicio",
+            ayuda = "Formato de 24 horas. Ejemplo: 16:00",
+            error = errores.horaInicio
         )
 
-        OutlinedTextField(
-            value = horaTermino,
-            onValueChange = { horaTermino = it },
-            label = { Text("Hora de término") },
-            placeholder = { Text("HH:mm") },
-            supportingText = {
-                Text("Formato de 24 horas. Ejemplo: 18:00")
-            },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth()
+        CampoReserva(
+            valor = horaTermino,
+            onValorChange = { horaTermino = it },
+            etiqueta = "Hora de término",
+            ayuda = "Debe ser posterior al inicio. Ejemplo: 18:00",
+            error = errores.horaTermino
         )
 
-        Text(
-            text = "Esta versión permite revisar los datos. " +
-                    "Todavía no valida ni guarda la reserva.",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        if (intentoRevisar && !errores.esValido) {
+            Text(
+                text = "Revisa los campos marcados antes de continuar.",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
 
         Button(
-            onClick = { mostrarResumen = true },
+            onClick = {
+                intentoRevisar = true
+
+                val resultado = ReservaValidator.validar(
+                    solicitante = solicitante,
+                    motivo = motivo,
+                    fecha = fecha,
+                    horaInicio = horaInicio,
+                    horaTermino = horaTermino
+                )
+
+                mostrarResumen = resultado.esValido
+            },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Revisar datos")
@@ -141,6 +156,13 @@ fun NuevaReservaScreen(
         ) {
             Text("Volver a arriendos")
         }
+
+        Text(
+            text = "Prototipo: revisar los datos todavía no guarda " +
+                    "la reserva ni comprueba disponibilidad.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 
     if (mostrarResumen) {
@@ -149,7 +171,7 @@ fun NuevaReservaScreen(
                 mostrarResumen = false
             },
             title = {
-                Text("Revisión de datos")
+                Text("Revisión de la reserva")
             },
             text = {
                 Column(
@@ -157,33 +179,15 @@ fun NuevaReservaScreen(
                         .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text(
-                        text = "Solicitante: " +
-                                solicitante.ifBlank { "Sin completar" }
-                    )
+                    Text("Solicitante: ${solicitante.trim()}")
+                    Text("Motivo: ${motivo.trim()}")
+                    Text("Fecha: ${fecha.trim()}")
+                    Text("Inicio: ${horaInicio.trim()}")
+                    Text("Término: ${horaTermino.trim()}")
 
                     Text(
-                        text = "Motivo: " +
-                                motivo.ifBlank { "Sin completar" }
-                    )
-
-                    Text(
-                        text = "Fecha: " +
-                                fecha.ifBlank { "Sin completar" }
-                    )
-
-                    Text(
-                        text = "Inicio: " +
-                                horaInicio.ifBlank { "Sin completar" }
-                    )
-
-                    Text(
-                        text = "Término: " +
-                                horaTermino.ifBlank { "Sin completar" }
-                    )
-
-                    Text(
-                        text = "Vista previa: la reserva no se ha guardado.",
+                        text = "Los datos superaron la validación " +
+                                "del formulario. La reserva aún no se ha guardado.",
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
@@ -199,6 +203,36 @@ fun NuevaReservaScreen(
             }
         )
     }
+}
+
+@Composable
+private fun CampoReserva(
+    valor: String,
+    onValorChange: (String) -> Unit,
+    etiqueta: String,
+    error: String?,
+    ayuda: String? = null,
+    multilinea: Boolean = false
+) {
+    OutlinedTextField(
+        value = valor,
+        onValueChange = onValorChange,
+        label = {
+            Text(etiqueta)
+        },
+        isError = error != null,
+        supportingText = {
+            val mensaje = error ?: ayuda
+
+            if (mensaje != null) {
+                Text(mensaje)
+            }
+        },
+        singleLine = !multilinea,
+        minLines = if (multilinea) 2 else 1,
+        maxLines = if (multilinea) 4 else 1,
+        modifier = Modifier.fillMaxWidth()
+    )
 }
 
 @Preview(showBackground = true)
