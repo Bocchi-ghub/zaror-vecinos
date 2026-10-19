@@ -15,48 +15,22 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.zarorvecinos.ui.theme.ZarorVecinosTheme
-import com.example.zarorvecinos.validation.ErroresReserva
-import com.example.zarorvecinos.validation.ReservaValidator
+import com.example.zarorvecinos.viewmodel.CampoReserva
+import com.example.zarorvecinos.viewmodel.NuevaReservaUiState
 
 @Composable
 fun NuevaReservaScreen(
+    uiState: NuevaReservaUiState,
+    onCampoChange: (CampoReserva, String) -> Unit,
+    onRevisarDatos: () -> Unit,
+    onCerrarResumen: () -> Unit,
     onVolver: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var solicitante by rememberSaveable { mutableStateOf("") }
-    var motivo by rememberSaveable { mutableStateOf("") }
-    var fecha by rememberSaveable { mutableStateOf("") }
-    var horaInicio by rememberSaveable { mutableStateOf("") }
-    var horaTermino by rememberSaveable { mutableStateOf("") }
-
-    var intentoRevisar by rememberSaveable {
-        mutableStateOf(false)
-    }
-
-    var mostrarResumen by rememberSaveable {
-        mutableStateOf(false)
-    }
-
-    val errores = if (intentoRevisar) {
-        ReservaValidator.validar(
-            solicitante = solicitante,
-            motivo = motivo,
-            fecha = fecha,
-            horaInicio = horaInicio,
-            horaTermino = horaTermino
-        )
-    } else {
-        ErroresReserva()
-    }
-
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -83,47 +57,57 @@ fun NuevaReservaScreen(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        CampoReserva(
-            valor = solicitante,
-            onValorChange = { solicitante = it },
+        CampoReservaFormulario(
+            valor = uiState.solicitante,
+            onValorChange = {
+                onCampoChange(CampoReserva.SOLICITANTE, it)
+            },
             etiqueta = "Nombre del solicitante",
-            error = errores.solicitante
+            error = uiState.errores.solicitante
         )
 
-        CampoReserva(
-            valor = motivo,
-            onValorChange = { motivo = it },
+        CampoReservaFormulario(
+            valor = uiState.motivo,
+            onValorChange = {
+                onCampoChange(CampoReserva.MOTIVO, it)
+            },
             etiqueta = "Motivo del arriendo",
             ayuda = "Ejemplo: Taller comunitario",
-            error = errores.motivo,
+            error = uiState.errores.motivo,
             multilinea = true
         )
 
-        CampoReserva(
-            valor = fecha,
-            onValorChange = { fecha = it },
+        CampoReservaFormulario(
+            valor = uiState.fecha,
+            onValorChange = {
+                onCampoChange(CampoReserva.FECHA, it)
+            },
             etiqueta = "Fecha",
             ayuda = "Formato DD/MM/AAAA. Ejemplo: 25/10/2026",
-            error = errores.fecha
+            error = uiState.errores.fecha
         )
 
-        CampoReserva(
-            valor = horaInicio,
-            onValorChange = { horaInicio = it },
+        CampoReservaFormulario(
+            valor = uiState.horaInicio,
+            onValorChange = {
+                onCampoChange(CampoReserva.HORA_INICIO, it)
+            },
             etiqueta = "Hora de inicio",
             ayuda = "Formato de 24 horas. Ejemplo: 16:00",
-            error = errores.horaInicio
+            error = uiState.errores.horaInicio
         )
 
-        CampoReserva(
-            valor = horaTermino,
-            onValorChange = { horaTermino = it },
+        CampoReservaFormulario(
+            valor = uiState.horaTermino,
+            onValorChange = {
+                onCampoChange(CampoReserva.HORA_TERMINO, it)
+            },
             etiqueta = "Hora de término",
             ayuda = "Debe ser posterior al inicio. Ejemplo: 18:00",
-            error = errores.horaTermino
+            error = uiState.errores.horaTermino
         )
 
-        if (intentoRevisar && !errores.esValido) {
+        if (uiState.intentoRevisar && !uiState.errores.esValido) {
             Text(
                 text = "Revisa los campos marcados antes de continuar.",
                 color = MaterialTheme.colorScheme.error,
@@ -132,19 +116,7 @@ fun NuevaReservaScreen(
         }
 
         Button(
-            onClick = {
-                intentoRevisar = true
-
-                val resultado = ReservaValidator.validar(
-                    solicitante = solicitante,
-                    motivo = motivo,
-                    fecha = fecha,
-                    horaInicio = horaInicio,
-                    horaTermino = horaTermino
-                )
-
-                mostrarResumen = resultado.esValido
-            },
+            onClick = onRevisarDatos,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Revisar datos")
@@ -165,11 +137,9 @@ fun NuevaReservaScreen(
         )
     }
 
-    if (mostrarResumen) {
+    if (uiState.mostrarResumen) {
         AlertDialog(
-            onDismissRequest = {
-                mostrarResumen = false
-            },
+            onDismissRequest = onCerrarResumen,
             title = {
                 Text("Revisión de la reserva")
             },
@@ -179,11 +149,25 @@ fun NuevaReservaScreen(
                         .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text("Solicitante: ${solicitante.trim()}")
-                    Text("Motivo: ${motivo.trim()}")
-                    Text("Fecha: ${fecha.trim()}")
-                    Text("Inicio: ${horaInicio.trim()}")
-                    Text("Término: ${horaTermino.trim()}")
+                    Text(
+                        "Solicitante: ${uiState.solicitante.trim()}"
+                    )
+
+                    Text(
+                        "Motivo: ${uiState.motivo.trim()}"
+                    )
+
+                    Text(
+                        "Fecha: ${uiState.fecha.trim()}"
+                    )
+
+                    Text(
+                        "Inicio: ${uiState.horaInicio.trim()}"
+                    )
+
+                    Text(
+                        "Término: ${uiState.horaTermino.trim()}"
+                    )
 
                     Text(
                         text = "Los datos superaron la validación " +
@@ -194,9 +178,7 @@ fun NuevaReservaScreen(
             },
             confirmButton = {
                 TextButton(
-                    onClick = {
-                        mostrarResumen = false
-                    }
+                    onClick = onCerrarResumen
                 ) {
                     Text("Seguir editando")
                 }
@@ -206,7 +188,7 @@ fun NuevaReservaScreen(
 }
 
 @Composable
-private fun CampoReserva(
+private fun CampoReservaFormulario(
     valor: String,
     onValorChange: (String) -> Unit,
     etiqueta: String,
@@ -240,6 +222,10 @@ private fun CampoReserva(
 fun NuevaReservaScreenPreview() {
     ZarorVecinosTheme {
         NuevaReservaScreen(
+            uiState = NuevaReservaUiState(),
+            onCampoChange = { _, _ -> },
+            onRevisarDatos = {},
+            onCerrarResumen = {},
             onVolver = {}
         )
     }

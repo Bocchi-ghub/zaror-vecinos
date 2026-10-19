@@ -14,6 +14,11 @@ import com.example.zarorvecinos.ui.theme.model.ArriendoUi
 import com.example.zarorvecinos.ui.theme.model.EstadoArriendoUi
 import com.example.zarorvecinos.ui.theme.screens.NuevaReservaScreen
 
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.zarorvecinos.viewmodel.NuevaReservaViewModel
+
 private object Rutas {
     const val INICIO = "inicio"
     const val ARRIENDOS = "arriendos"
@@ -97,7 +102,16 @@ fun ZarorNavHost(
             )
         }
         composable(route = Rutas.NUEVA_RESERVA) {
+            val reservaViewModel: NuevaReservaViewModel = viewModel()
+
+            val uiState by reservaViewModel.uiState
+                .collectAsStateWithLifecycle()
+
             NuevaReservaScreen(
+                uiState = uiState,
+                onCampoChange = reservaViewModel::actualizarCampo,
+                onRevisarDatos = reservaViewModel::revisarDatos,
+                onCerrarResumen = reservaViewModel::cerrarResumen,
                 onVolver = {
                     navController.popBackStack()
                 }
