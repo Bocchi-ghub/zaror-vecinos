@@ -10,6 +10,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import com.example.zarorvecinos.navigation.ZarorNavHost
 import com.example.zarorvecinos.ui.theme.ZarorVecinosTheme
+import com.example.zarorvecinos.ui.theme.screens.PruebaRoomScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,7 +23,7 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     modifier = Modifier.fillMaxSize()
                 ) { innerPadding ->
-                    ZarorNavHost(
+                    PruebaRoomScreen(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
