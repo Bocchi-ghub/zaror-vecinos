@@ -10,14 +10,14 @@ import com.example.zarorvecinos.ui.theme.screens.ArriendosScreen
 import com.example.zarorvecinos.ui.theme.screens.FinanzasScreen
 import com.example.zarorvecinos.ui.theme.screens.InicioScreen
 
-import com.example.zarorvecinos.ui.theme.model.ArriendoUi
-import com.example.zarorvecinos.ui.theme.model.EstadoArriendoUi
+
 import com.example.zarorvecinos.ui.theme.screens.NuevaReservaScreen
 
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zarorvecinos.viewmodel.NuevaReservaViewModel
+import com.example.zarorvecinos.viewmodel.ReservaViewModel
 
 private object Rutas {
     const val INICIO = "inicio"
@@ -52,6 +52,11 @@ fun ZarorNavHost(
         }
 
         composable(route = Rutas.ARRIENDOS) {
+            val reservasViewModel: ReservaViewModel = viewModel()
+
+            val reservas by reservasViewModel.reservas
+                .collectAsStateWithLifecycle()
+
             ArriendosScreen(
                 onVolver = {
                     navController.popBackStack()
@@ -61,36 +66,7 @@ fun ZarorNavHost(
                         launchSingleTop = true
                     }
                 },
-                arriendos = listOf(
-                    ArriendoUi(
-                        id = 1,
-                        motivo = "Reunión comunitaria",
-                        solicitante = "Vecino Demo 1",
-                        fecha = "24/10/2026",
-                        horaInicio = "16:00",
-                        horaTermino = "18:00",
-                        estado = EstadoArriendoUi.CONFIRMADO
-                    ),
-                    ArriendoUi(
-                        id = 2,
-                        motivo = "Taller vecinal",
-                        solicitante = "Vecino Demo 2",
-                        fecha = "25/10/2026",
-                        horaInicio = "10:00",
-                        horaTermino = "12:00",
-                        estado = EstadoArriendoUi.PENDIENTE
-                    ),
-                    ArriendoUi(
-                        id = 3,
-                        motivo = "Actividad recreativa",
-                        solicitante = "Vecino Demo 3",
-                        fecha = "26/10/2026",
-                        horaInicio = "15:00",
-                        horaTermino = "17:00",
-                        estado = EstadoArriendoUi.CANCELADO
-                    )
-                ),
-                mostrarAvisoDemo = true
+                reservas = reservas
             )
         }
 
