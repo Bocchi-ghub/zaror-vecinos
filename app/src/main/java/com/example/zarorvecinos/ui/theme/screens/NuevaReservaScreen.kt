@@ -23,6 +23,13 @@ import com.example.zarorvecinos.viewmodel.CampoReserva
 import com.example.zarorvecinos.viewmodel.NuevaReservaUiState
 import com.example.zarorvecinos.ui.theme.components.SelectorFechaReserva
 import com.example.zarorvecinos.ui.theme.components.SelectorHoraReserva
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 
 @Composable
 fun NuevaReservaScreen(
@@ -114,7 +121,20 @@ fun NuevaReservaScreen(
             }
         )
 
-        if (uiState.intentoRevisar && !uiState.errores.esValido) {
+        AnimatedVisibility(
+            visible = uiState.intentoRevisar &&
+                    !uiState.errores.esValido,
+            enter = fadeIn(
+                animationSpec = tween(durationMillis = 200)
+            ) + expandVertically(
+                animationSpec = tween(durationMillis = 200)
+            ),
+            exit = fadeOut(
+                animationSpec = tween(durationMillis = 150)
+            ) + shrinkVertically(
+                animationSpec = tween(durationMillis = 150)
+            )
+        ) {
             Text(
                 text = "Revisa los campos marcados antes de continuar.",
                 color = MaterialTheme.colorScheme.error,
@@ -220,7 +240,9 @@ private fun CampoReservaFormulario(
         singleLine = !multilinea,
         minLines = if (multilinea) 2 else 1,
         maxLines = if (multilinea) 4 else 1,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .animateContentSize()
+            .fillMaxWidth()
     )
 }
 

@@ -24,6 +24,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import androidx.compose.animation.animateContentSize
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,7 +62,9 @@ fun SelectorFechaReserva(
             }
         },
         singleLine = true,
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .animateContentSize()
+            .fillMaxWidth()
     )
 
     if (mostrarSelector) {
@@ -143,7 +146,9 @@ fun SelectorHoraReserva(
             }
         },
         singleLine = true,
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .animateContentSize()
+            .fillMaxWidth()
     )
 
     if (mostrarSelector) {
