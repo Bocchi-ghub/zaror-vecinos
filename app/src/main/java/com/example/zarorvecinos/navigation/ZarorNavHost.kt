@@ -18,6 +18,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zarorvecinos.viewmodel.NuevaReservaViewModel
 import com.example.zarorvecinos.viewmodel.ReservaViewModel
+import androidx.compose.runtime.LaunchedEffect
 
 private object Rutas {
     const val INICIO = "inicio"
@@ -83,10 +84,17 @@ fun ZarorNavHost(
             val uiState by reservaViewModel.uiState
                 .collectAsStateWithLifecycle()
 
+            LaunchedEffect(uiState.reservaGuardada) {
+                if (uiState.reservaGuardada) {
+                    navController.popBackStack()
+                }
+            }
+
             NuevaReservaScreen(
                 uiState = uiState,
                 onCampoChange = reservaViewModel::actualizarCampo,
                 onRevisarDatos = reservaViewModel::revisarDatos,
+                onGuardarReserva = reservaViewModel::guardarReserva,
                 onCerrarResumen = reservaViewModel::cerrarResumen,
                 onVolver = {
                     navController.popBackStack()

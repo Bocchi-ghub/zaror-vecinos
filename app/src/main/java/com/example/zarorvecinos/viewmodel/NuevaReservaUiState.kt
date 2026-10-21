@@ -1,6 +1,5 @@
 package com.example.zarorvecinos.viewmodel
 
-
 import com.example.zarorvecinos.validation.ErroresReserva
 
 enum class CampoReserva {
@@ -8,7 +7,8 @@ enum class CampoReserva {
     MOTIVO,
     FECHA,
     HORA_INICIO,
-    HORA_TERMINO
+    HORA_TERMINO,
+    ASISTENTES
 }
 
 data class NuevaReservaUiState(
@@ -17,7 +17,18 @@ data class NuevaReservaUiState(
     val fecha: String = "",
     val horaInicio: String = "",
     val horaTermino: String = "",
+    val asistentes: String = "",
+
     val errores: ErroresReserva = ErroresReserva(),
+    val asistentesError: String? = null,
+
     val intentoRevisar: Boolean = false,
-    val mostrarResumen: Boolean = false
-)
+    val mostrarResumen: Boolean = false,
+
+    val guardando: Boolean = false,
+    val reservaGuardada: Boolean = false,
+    val errorGuardado: String? = null
+) {
+    val formularioValido: Boolean
+        get() = errores.esValido && asistentesError == null
+}

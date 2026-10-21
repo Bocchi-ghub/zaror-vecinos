@@ -22,6 +22,20 @@ data class ErroresReserva(
 
 object ReservaValidator {
 
+    fun validarAsistentes(valor: String): String? {
+        val cantidad = valor.trim().toIntOrNull()
+
+        return when {
+            valor.isBlank() ->
+                "Ingresa la cantidad de asistentes."
+
+            cantidad == null || cantidad <= 0 ->
+                "Ingresa un número entero mayor a cero."
+
+            else -> null
+        }
+    }
+
     fun validar(
         solicitante: String,
         motivo: String,

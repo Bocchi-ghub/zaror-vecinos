@@ -33,6 +33,7 @@ import androidx.compose.animation.shrinkVertically
 
 @Composable
 fun NuevaReservaScreen(
+    onGuardarReserva: () -> Unit,
     uiState: NuevaReservaUiState,
     onCampoChange: (CampoReserva, String) -> Unit,
     onRevisarDatos: () -> Unit,
@@ -123,7 +124,7 @@ fun NuevaReservaScreen(
 
         AnimatedVisibility(
             visible = uiState.intentoRevisar &&
-                    !uiState.errores.esValido,
+                    !uiState.formularioValido,
             enter = fadeIn(
                 animationSpec = tween(durationMillis = 200)
             ) + expandVertically(
@@ -176,12 +177,30 @@ fun NuevaReservaScreen(
                         .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
+                    Text("Espacio: Sede vecinal")
+                    Text("Asistentes: ${uiState.asistentes.trim()}")
+
                     Text(
                         "Solicitante: ${uiState.solicitante.trim()}"
                     )
 
                     Text(
                         "Motivo: ${uiState.motivo.trim()}"
+                    )
+
+                    Text(
+                        text = "Espacio: Sede vecinal",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+
+                    CampoReservaFormulario(
+                        valor = uiState.asistentes,
+                        onValorChange = {
+                            onCampoChange(CampoReserva.ASISTENTES, it)
+                        },
+                        etiqueta = "Cantidad de asistentes",
+                        ayuda = "Ingresa un número entero mayor a cero.",
+                        error = uiState.asistentesError
                     )
 
                     Text(
@@ -197,15 +216,38 @@ fun NuevaReservaScreen(
                     )
 
                     Text(
-                        text = "Los datos superaron la validación " +
-                                "del formulario. La reserva aún no se ha guardado.",
+                        text = "Al confirmar se comprobará la disponibilidad " +
+                                "y se guardará la reserva en este dispositivo.",
                         style = MaterialTheme.typography.bodySmall
                     )
+                    uiState.errorGuardado?.let { mensaje ->
+                        Text(
+                            text = mensaje,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
                 }
             },
             confirmButton = {
                 TextButton(
-                    onClick = onCerrarResumen
+                    onClick = onGuardarReserva,
+                    enabled = !uiState.guardando &&
+                            !uiState.reservaGuardada
+                ) {
+                    Text(
+                        if (uiState.guardando) {
+                            "Guardando..."
+                        } else {
+                            "Confirmar reserva"
+                        }
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = onCerrarResumen,
+                    enabled = !uiState.guardando
                 ) {
                     Text("Seguir editando")
                 }
@@ -255,6 +297,7 @@ fun NuevaReservaScreenPreview() {
             onCampoChange = { _, _ -> },
             onRevisarDatos = {},
             onCerrarResumen = {},
+            onGuardarReserva = {},
             onVolver = {}
         )
     }
