@@ -22,10 +22,9 @@ class MainActivity : ComponentActivity() {
             ZarorVecinosTheme {
                 Scaffold(
                     modifier = Modifier.fillMaxSize()
-                ) { innerPadding ->
-                    PruebaRoomScreen(
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                ) { innerPadding ->ZarorNavHost(
+                    modifier = Modifier.padding(innerPadding)
+                        )
                 }
             }
         }

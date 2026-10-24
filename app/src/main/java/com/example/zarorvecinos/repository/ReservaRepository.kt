@@ -6,6 +6,9 @@ import com.example.zarorvecinos.local.ZarorDatabase
 import com.example.zarorvecinos.model.Reserva
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import android.location.Location
+import com.example.zarorvecinos.model.ResultadoGuardadoReserva
+import com.example.zarorvecinos.model.UbicacionReserva
 
 class ReservaRepository(context: Context){
     private val dao= ZarorDatabase
@@ -42,7 +45,69 @@ class ReservaRepository(context: Context){
         )>0
 
     }
-}
+
+    suspend fun guardarReservaConEvidencia(
+        reserva: Reserva,
+        uriFoto : String?,
+        ubicacion : UbicacionReserva?
+    ): ResultadoGuardadoReserva{
+    if (ubicacion == null){
+        return  ResultadoGuardadoReserva.Error(
+            mensaje ="No se pudo obtener la ubicacion del dispositivo"
+        )
+    }
+        val distancia = calcularDistanciaMetros(
+            latitudUsuario = ubicacion.latitud,
+            longitudUsuario = ubicacion.longitud,
+            latitudSede =  LATITUD_SEDE,
+            longitudSede = LONGITUD_SEDE
+        )
+        if (distancia > RADIO_PERMITIDO_METROS){
+            return  ResultadoGuardadoReserva.Rechazado(
+                motivo ="Debes encontrarte cerca de la sede vecinal"
+            )
+        }
+        val reservaConEvidencia = reserva.copy(
+            uriFoto= uriFoto,
+            latitud = ubicacion.latitud,
+            longitud = ubicacion.longitud
+        )
+        return try {
+            guardarReserva(reservaConEvidencia)
+
+            ResultadoGuardadoReserva.Exitoso(
+                reserva = reservaConEvidencia
+            )
+        }catch (exception : Exception){
+            ResultadoGuardadoReserva.Error(
+                mensaje = "No se pudo guardar la reserva"
+            )
+        }
+    }
+
+    private fun calcularDistanciaMetros(
+        latitudUsuario : Double,
+        longitudUsuario : Double,
+        latitudSede : Double,
+        longitudSede : Double
+    ): Double {
+        val resultados = FloatArray(1)
+        Location.distanceBetween(
+            latitudUsuario ,
+            longitudUsuario ,
+            latitudSede,
+            longitudSede,
+            resultados
+
+        )
+        return  resultados[0].toDouble()
+    }
+    companion object {
+        private const val LATITUD_SEDE =  -33.456900
+        private const val LONGITUD_SEDE =  -70.648300
+        private const val RADIO_PERMITIDO_METROS =  200.0
+    }
+
 private fun ReservaEntity.aReserva(): Reserva{
     return Reserva(
         id = id,
@@ -53,11 +118,14 @@ private fun ReservaEntity.aReserva(): Reserva{
         horaTermino = horaTermino,
         asistentes = asistentes,
         observaciones = observaciones,
-        activa = activa
+        activa = activa,
+        uriFoto = uriFoto,
+        latitud = latitud,
+        longitud = longitud
     )
 }
 
-private fun Reserva.aEntity(): ReservaEntity{
+private fun Reserva.aEntity(): ReservaEntity {
     return ReservaEntity(
         id = id,
         nombreSolicitante = nombreSolicitante,
@@ -67,6 +135,18 @@ private fun Reserva.aEntity(): ReservaEntity{
         horaTermino = horaTermino,
         asistentes = asistentes,
         observaciones = observaciones,
-        activa = activa
+        activa = activa,
+        uriFoto = uriFoto,
+        latitud = latitud,
+        longitud = longitud
     )
 }
+
+
+
+
+}
+
+
+
+

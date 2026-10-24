@@ -132,5 +132,7 @@ class ReservaViewModel(application: Application): AndroidViewModel(application){
             errores["asistentes"]="Ingresa un numero mayor a cero"
         }
         return  errores
+
     }
+
 }

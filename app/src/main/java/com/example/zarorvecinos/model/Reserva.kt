@@ -9,5 +9,9 @@ data class Reserva(
     val horaTermino: String,
     val asistentes: Int,
     val observaciones: String="",
-    val activa: Boolean=true
+    val activa: Boolean=true,
+
+    val uriFoto: String? = null,
+    val latitud: Double? = null,
+    val longitud: Double? = null
 )
