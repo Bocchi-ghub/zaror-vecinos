@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Copia local previa al MVP
+_mvp_backup/

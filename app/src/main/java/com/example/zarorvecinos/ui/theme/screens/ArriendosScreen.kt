@@ -1,139 +1,32 @@
 package com.example.zarorvecinos.ui.theme.screens
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.zarorvecinos.ui.theme.ZarorVecinosTheme
-import com.example.zarorvecinos.ui.theme.components.ArriendoCard
-import com.example.zarorvecinos.ui.theme.model.ArriendoUi
-import com.example.zarorvecinos.ui.theme.model.EstadoArriendoUi
+import com.example.zarorvecinos.model.Reserva
+import com.example.zarorvecinos.validation.Validacion
+import com.example.zarorvecinos.ui.theme.components.FotoVista
 
 @Composable
-fun ArriendosScreen(
-    onVolver: () -> Unit,
-    onNuevaReserva: () -> Unit,
-    arriendos: List<ArriendoUi>,
-    modifier: Modifier = Modifier,
-    mostrarAvisoDemo: Boolean = false
-) {
-    LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        item {
-            Text(
-                text = "Arriendos de la sede",
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
-
-        item {
-            Text(
-                text = "Consulta las reservas de la comunidad.",
-                style = MaterialTheme.typography.bodyLarge
-            )
-        }
-
-        item {
-            Button(
-                onClick = onNuevaReserva,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Nueva reserva")
+fun ArriendosScreen(reservas: List<Reserva>, ocupado: Boolean, onNuevaReserva: () -> Unit, onCancelar: (Reserva) -> Unit) {
+    Text("Arriendos de la sede", style = MaterialTheme.typography.headlineMedium)
+    Button(onClick = { onNuevaReserva() }, enabled = !ocupado) { Text("Nueva reserva / continuar borrador") }
+    if (reservas.isEmpty()) Text("No hay reservas. Si hubo un error de lectura, se indicará abajo.")
+    reservas.forEach { r ->
+        Card(Modifier.fillMaxWidth().animateContentSize()) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(r.espacio, style = MaterialTheme.typography.titleLarge)
+                Text(if (r.activa) "Activa" else "Cancelada", color = if (r.activa) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error)
+                Text("Solicitante: ${r.nombreSolicitante}")
+                Text("${Validacion.mostrarFecha(r.fecha)} · ${r.horaInicio} a ${r.horaTermino}")
+                Text("Asistentes: ${r.asistentes}")
+                Text(r.observaciones)
+                r.uriFoto?.let { FotoVista(it) }
+                if (r.activa) OutlinedButton(onClick = { onCancelar(r) }, enabled = !ocupado) { Text("Cancelar reserva") }
             }
         }
-
-        if (mostrarAvisoDemo) {
-            item {
-                Text(
-                    text = "Datos de demostración · No están guardados",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-
-        if (arriendos.isEmpty()) {
-            item {
-                Text(
-                    text = "No hay arriendos registrados.",
-                    style = MaterialTheme.typography.titleMedium
-                )
-            }
-
-            item {
-                Text(
-                    text = "Las reservas aparecerán aquí " +
-                            "cuando estén disponibles.",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-        } else {
-            items(
-                items = arriendos,
-                key = { arriendo -> arriendo.id }
-            ) { arriendo ->
-                ArriendoCard(
-                    arriendo = arriendo
-                )
-            }
-        }
-
-        item {
-            OutlinedButton(
-                onClick = onVolver,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Volver al inicio")
-            }
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ArriendosScreenPreview() {
-    ZarorVecinosTheme {
-        ArriendosScreen(
-            onVolver = {},
-            onNuevaReserva = {},
-            arriendos = listOf(
-                ArriendoUi(
-                    id = 1,
-                    motivo = "Reunión comunitaria",
-                    solicitante = "Vecino Demo 1",
-                    fecha = "24/10/2026",
-                    horaInicio = "16:00",
-                    horaTermino = "18:00",
-                    estado = EstadoArriendoUi.CONFIRMADO
-                )
-            ),
-            mostrarAvisoDemo = true
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ArriendosVaciosPreview() {
-    ZarorVecinosTheme {
-        ArriendosScreen(
-            onVolver = {},
-            onNuevaReserva = {},
-            arriendos = emptyList()
-        )
     }
 }
