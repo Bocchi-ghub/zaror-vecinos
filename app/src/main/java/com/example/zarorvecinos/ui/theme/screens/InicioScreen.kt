@@ -3,6 +3,7 @@ package com.example.zarorvecinos.ui.theme.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import com.example.zarorvecinos.external.WeatherBannerCard
 
 @Composable
 fun InicioScreen(
@@ -12,6 +13,10 @@ fun InicioScreen(
 ) {
     Text("Tu comunidad, organizada", style = MaterialTheme.typography.headlineMedium)
     Text("MVP académico · Solo datos ficticios · Almacenamiento local")
+
+    // Widget de API externa (Open-Meteo)
+    WeatherBannerCard()
+
     Text("${reservasActivas} reservas activas · ${cantidadMovimientos} movimientos · ${cantidadBorradores} borradores")
     Button(onClick = { onNuevaReserva() }, enabled = !ocupado) { Text("Reservar sede vecinal") }
     OutlinedButton(onClick = { onFinanzas() }) { Text("Consultar finanzas") }
